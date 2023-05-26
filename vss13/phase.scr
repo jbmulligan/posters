@@ -1,0 +1,79 @@
+# compute the Fourier energy for a sample-and-hold display as a function
+# of phase and frequency...
+
+max_warnings 2
+
+< $macro_dir/view/plotsupp.mac
+
+Set samples_per_pixel 8
+Set max_period 32
+# that mean 256 samples for one cycle...
+Set n_samples 512
+Set n_phases 32
+Assign twopi 8*atan(1)
+
+Set amin -1.6
+Set amax 1.6
+
+New_Plotter spectrum_v 600 400
+Posn_Window spectrum_v 20 500
+Plot_Space 0 $amin $n_samples $amax
+
+Set ymin -2
+Set ymax 2
+
+New_Plotter pixel_v 600 400
+Posn_Window pixel_v 20 20
+Plot_Space 0 $ymin $n_samples $ymax
+
+Vector pts $n_samples 2 float
+Ramp1D pts{0} 0 1
+Subsample_Vector interstices pts{1} $n_samples/$samples_per_pixel 0 $samples_per_pixel
+Subsample_Vector interstices2 pts{1} $n_samples/$samples_per_pixel 1 $samples_per_pixel
+Subsample_Vector interstices3 pts{1} $n_samples/$samples_per_pixel 2 $samples_per_pixel
+
+Vector pixel_lum $n_samples/$samples_per_pixel 1 float
+
+Xform_For xf pts{1}
+Vector power ncols(xf) 1 float
+Vector spts ncols(power) 2 float
+Ramp1D spts{0} 0 1
+
+Define Try_Period 1 period
+Set phase 0
+Assign phase_inc 1/$n_phases
+repeat $n_phases
+  Try_Period_And_Phase $1 $phase
+  Add_Var phase $phase_inc
+  end
+Pause
+.
+
+Define Try_Period_And_Phase 2 period phase
+Ramp1D pixel_lum $twopi*$2 $twopi/$1 
+VSin pixel_lum pixel_lum
+Enlarge pts{1} pixel_lum
+VSet interstices 0
+VSet interstices2 0
+VSet interstices3 0
+Get_Mean m pts{1}
+Select_Plotter pixel_v
+Erase_Plot
+XYPlot pts
+# Now get the frequency content using the DFT
+RFFT xf pts{1}
+Select_Plotter spectrum_v
+VMagSq power xf
+VSqrt power power
+VSMul power power 2/$n_samples
+Get_Max m power
+advise "Max amplitude is $m"
+VMov spts{1} power
+Erase_Plot
+XYPlot spts
+.
+
+#Try_Period 2
+Try_Period 4
+Try_Period 8
+

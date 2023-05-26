@@ -1,0 +1,17 @@
+# make sure the png file is correct...
+
+Set infile sweep1.png
+Read_File_Header $infile
+Image b nrows('$infile') ncols('$infile') ncomps('$infile') u_byte
+Get_Next b $infile
+
+Viewer_For v b
+VSMax b b 127
+VSMin b b 128
+
+Dup_Float f b
+Convert f b
+Disp_Image f v
+Pause
+
+

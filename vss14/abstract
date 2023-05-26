@@ -1,0 +1,32 @@
+Smooth pursuit of flicker-defined motion
+
+We examined the pursuit response to stimuli defined by
+space-variant flicker of a dense random dot carrier pattern.
+On each frame, every element of the pattern could change polarity,
+with a probability given by a two-dimensional Gaussian distribution.
+A standard distribution produces a circular region of twinkle,
+or the signal can be inverted, resulting in a spot of static texture
+in a twinkling surround.
+In this latter case, the carrier texture could be stationary, or could
+move with the twinkle modulator, thereby producing first-order motion
+in the region of the spot.  While the twinkle-defined spot produces
+a strong sensation of motion, the complementary stimulus defined by
+the absence of twinkle does not; when viewed peripherally, it appears to move
+in steps even when the generating distribution moves smoothly.
+We examined pursuit responses to these stimuli using two techniques:
+1) the eye movement correlogram, obtained by cross-correlating eye velocity
+with the velocity of a randomly-moving stimulus; and 2) delayed visual
+feedback, where transient stabilization of a target can produce spontaneous
+oscillations of the eye, with a period empirically observed to vary linearly
+with the applied delay.  Both techniques provide an estimate of the internal
+processing time, which can be as short as 100 milliseconds for a first-order
+target.  Assessed by the correlogram method, the response to flicker-defined
+motion is delayed by more than 100 milliseconds, and significantly weaker (especially in the vertical dimension).  When initially presented in the delayed
+feedback condition, purely saccadic oscillation is observed.  One subject
+eventually developed smooth oscillations (albeit with significant saccadic
+intrusions), showing a period-versus-delay slope similar to that observed
+for first-order targets.  This result is somewhat surprising, given
+that we interpret the slope of the period-versus-delay function
+as reflecting the balance between position- and velocity-sensitive
+inputs to pursuit.
+

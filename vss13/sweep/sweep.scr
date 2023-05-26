@@ -1,0 +1,207 @@
+# quip script to display sweep grating
+# This is the x-windows version...
+
+If $argc!=1 "error_exit 'Usage:  coq device < sweep.scr'"
+
+Set device $1
+
+max_warnings 1
+
+< $macro_dir/view/opt_ht.mac
+< $macro_dir/compute/rdp.mac
+
+Set w -1
+If !strcmp('$device','iPad2') "Set w 1024 Set h 768"
+If !strcmp('$device','iPod4') "Set w 960 Set h 640"
+If $w==(-1) "error_exit 'Usage coq iPad2|iPod4 < sweep.scr'"
+
+Set sw 5
+
+#Viewer v1 $w $h
+Mousescape v1 $w $h SwipeIt
+Viewer v2 $w $h
+Posn_Window v2 800 480
+Viewer v3 $w $h
+Posn_Window v3 800 0
+
+Set min_period 4
+Set max_period 512	# 7 octaves...
+
+# sin( f * x * twopi )
+Assign twopi 8*atan(1)
+#Print twopi
+
+Assign f_min 1/$max_period
+Assign f_max 1/$min_period
+
+Image arg $h $w 1 float
+Image grating $h $w 1 float
+Image freq $h $w 1 float
+
+# This is the linear frequency ramp
+#Assign fdelta ($f_max-$f_min)/($w-1)
+#Ramp2D freq $f_min $fdelta 0
+
+Assign lf_min log($f_min)
+Assign lf_max log($f_max)
+Assign lf_delta ($lf_max-$lf_min)/($w-1)
+Ramp2D freq $lf_min $lf_delta 0
+VExp freq freq
+Disp_Image freq v2
+#Pause
+
+# In order to make the grating be continuous,
+# we integrate the frequency image in the horizontal
+# dimension, and then scale by twopi to get an arg
+# for sine or cosine.
+# The units of frequency are cycles/sample
+
+Subimage sf freq $w-1 $h 0 0
+Subimage sa1 arg $w-1 $h 0 0
+Subimage sa2 arg $w-1 $h 1 0
+VSet arg{0} 0.0
+VVAdd sa2 sa1 sf
+VSMul arg arg $twopi
+
+VCos grating arg
+#Disp_Image arg v1
+#Pause
+
+# Now make the contrast envelope
+
+Set c_min 0.0001
+Set c_max 1.0
+
+Assign lc_min log($c_min)
+Assign lc_max log($c_max)
+
+Image contrast $h $w 1 float
+
+# An x delta of 0 gives us the traditional image
+# with contrast varying in the y dimension only...
+# An x delta makes the equi-contrast contours deviate from horizontal...
+# But how much?  Here we try to keep the min and max the same...
+# First assume that both deltas are positive...
+# We want the min contrast in the upper left hand corner,
+# and the max contrast in the lower right hand corner.
+# We want the equi-contrast contour to go from the lower-left
+# corner to the upper right corner.  This means that
+# we split the contrast change equally between the H and V deltas...
+
+# To go the other way, we still have the min in the upper left hand
+# corner, but we negate the x delta
+
+#Assign y_fraction 0.5
+Assign y_fraction 1.0
+Assign x_fraction -(1-$y_fraction)
+
+Assign lc_y_delta $y_fraction*($lc_max-$lc_min)/($h-1)
+Assign lc_x_delta $x_fraction*($lc_max-$lc_min)/($w-1)
+
+
+
+Ramp2D contrast $lc_min $lc_x_delta $lc_y_delta
+VExp contrast contrast
+#Disp_Image contrast v2
+#Display contrast[0][0]
+#Display contrast[$h-1][0]
+VVMul grating contrast grating
+#Disp_Image grating v1
+
+Define LClick 0
+If $left_button_up exit_macro
+advise "LClick at $view_xpos $view_ypos"
+.
+
+Define  SwipeIt 0
+If !$left_button_down exit_macro
+Assign f value(freq[$view_ypos][$view_xpos])
+Assign c value(contrast[$view_ypos][$view_xpos])
+advise "Swipe at $view_xpos $view_ypos, f = $f   c = $c"
+.
+
+Define Save_PNG 2 object filename
+Image b_png nrows('$1') ncols('$1') 3 u_byte
+Convert b_png $1
+Filetype pngfio
+Clobber yes
+Write_File_Header ${device}_$2 1
+Put_Next b_png ${device}_$2
+Delete_Image b_png
+.
+
+Define Save_PNG_Norm 2 object filename
+Dup_Float png_norm $1
+VMov png_norm $1
+Scale png_norm 0 255
+Save_PNG png_norm $2
+Delete_Image png_norm
+.
+
+#Set_Button_Actions v1 LClick MClick RClick
+#view
+# viewers
+#   event_action v left_button_down LClick
+#   quit
+# quit
+
+# Now dither the quantization error
+Dup_Float resid grating
+Dup_Float qgrating grating
+#Scale grating 0 254
+Set bmean 127.5
+#Set bmean 127
+VSMul grating grating $bmean
+VSAdd grating grating $bmean
+VFloor qgrating grating
+Disp_Image qgrating v2
+Save_PNG qgrating qg.png
+VVSub resid grating qgrating
+Save_PNG_Norm resid resid.png
+Disp_Image resid v1
+Pause
+# resid goes from 0 to 1...
+
+
+#Scale grating 0 1
+Scale resid -1 1
+Opt_HT_Init resid
+Dup_Float my_halftone resid
+Compute_Opt_HT my_halftone resid
+Disp_Image grating v1
+verbose yes
+Disp_Image my_halftone v2
+verbose no
+
+VSMax my_halftone my_halftone 0
+Save_PNG_Norm my_halftone ht.png
+VVAdd qgrating qgrating my_halftone
+verbose yes
+Disp_Image qgrating v2
+verbose no
+Save_PNG qgrating final.png
+
+#Scale my_halftone 0 255
+#Dup_UByte b_halftone my_halftone
+
+Pause
+
+exit
+
+# Now verify...
+Convert qgrating b_halftone{0}
+VSMax qgrating qgrating 126
+VSMin qgrating qgrating 129
+Disp_Image qgrating v1
+Pause
+
+# Now 
+
+Pause
+do
+  os events quit
+  while 1
+
+Pause
+
+

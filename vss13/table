@@ -1,0 +1,23 @@
+device			dimensions	resolution	pixel pitch (ppi) min SF max SF
+iPad2			9.7 inch diag	1024x768	132
+iPad4	 	 	9.7 inch diag	2048x1536	264
+iPad mini		7.9 inch diag	1024x768	163
+iPod4 			3.5 inch diag	960x640		326
+iPod5 			4.0 inch diag	1136x640	326
+
+max freq:
+min period = 4 pixels
+min period (inches) = 4/ppi
+min period (radians) = min_period_inches/20
+max freq (cpd) = 1/(min_period_radians/radians_per_degree)
+
+dm 4/x1 y1/20 '1/(y2/(atan(1)/45))' < ppi_list
+
+min freq:
+max period = 0.5 screens
+max period (inches) = n_pixels / ppi
+max period (radians) = max_period_inches/20
+min freq (cpd) = 1/(max_period_radians/radians_per_degree)
+
+dm '(x1/2)/x2' y1/20 '1/(y2/(atan(1)/45))'
+

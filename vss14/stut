@@ -1,0 +1,5 @@
+
+The Stuttering Spot
+
+Flicker-defined motion can be produced by moving a region of texture flicker on a background of static texture.  Using the "pedestal test" described by Lu and Sperling, it can be shown that this is an example of 3rd order (feature-tracking) motion.  When static and flickering regions are exchanged, we can present a spot defined by static texture in a sea of flickering texture.  When such a spot is displaced, a curious effect is observed:  although the spot is moved continuously (i.e., a small step is made with each new display frame), the perceived motion appears discontinuous, with the spot sitting in one place for many frames, and then moving to a new location.  This effect may reflect the resolution of a cue-conflict situation:  the static texture in the interior of the spot provides a 1st-order signal indicating stationarity (no motion), while the motion of the spot is carried by the 3rd-order system.
+

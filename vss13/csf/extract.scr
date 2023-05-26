@@ -1,0 +1,34 @@
+
+Set max_swipes 20
+Set max_settings 100
+
+Image saved_settings $max_swipes $max_settings 2 float
+Vector setting_count $max_swipes 1 short
+
+Get_Ascii saved_settings saved_settings.asc
+Get_Ascii setting_count setting_count.asc
+
+advise 'saved settings read'
+
+Define SaveSwipe 0
+Subvector pts saved_settings[$i] $c 0
+Assign file_index $i+1
+Set filename ascii/swipe$file_index.asc
+
+VLog10 pts{0} pts{0}
+VLog10 pts{1} pts{1}
+VSMul pts{1} pts{1} -1
+Put_Ascii pts $filename
+Delete_Image pts
+advise "Saved $c points to file $filename"
+.
+
+Set i 0
+repeat $max_swipes
+  Assign c value(setting_count[$i])
+  If $c>0 SaveSwipe
+  Increment i
+  end
+
+Pause
+

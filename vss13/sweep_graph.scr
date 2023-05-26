@@ -1,0 +1,41 @@
+#
+
+< $macro_dir/view/plotsupp.mac
+
+#New_Plotter v 1280 960
+New_Plotter v 640 480
+
+# Our inset will have iPad2 resolution,
+# 1024x768.
+# For the figure our lowest frequency
+# will have a period of 1/8 of the image, or
+# 128 pixels, while the highest frequency
+# will have a period of 4 pixels, so we
+# have a factor of 32...  the log of 32 is
+# around 1.5.  For the high frequency to be 10 cpd,
+# we need those 4 pixels to subtend 1/10 deg,
+# which means the whole image needs to subtend
+# (1024/4)/10 = 25.6 degrees.  We can do an iPad
+# version and an iPod version!
+
+
+Set xmin 0
+Set xmax 5
+Set ymin 0
+Set ymax 4
+Set x_tick_spacing 1
+Set y_tick_spacing 1
+
+Plot_Data_Range $xmin $ymin $xmax $ymax
+Y_Legend contrast
+#(Y_Legend_Right string)
+X_Legend 'spatial frequency'
+#(X_Legend_Top string)
+Plot_X_Axis $xmin $xmax $x_tick_spacing $ymin
+Plot_Y_Axis $ymin $ymax $y_tick_spacing $xmin
+Label_X_Ticks $xmin $xmax $x_tick_spacing
+Label_Y_Ticks $ymin $ymax $y_tick_spacing
+#(Label_Y_Ticks_Right first max delta)
+
+Pause
+

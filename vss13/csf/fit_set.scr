@@ -1,0 +1,109 @@
+# fit a set of curves...
+max_warnings 1
+
+< $HOME/working/oq/macros/demo/csf.mac
+
+Define Vector_If 4 name ncols depth type
+If obj_exists('$1') "Delete_Image '$1'"
+Vector $1 $2 $3 $4
+.
+
+Set DISPLAY_WIDTH 500
+Set DISPLAY_HEIGHT 500
+
+< $macro_dir/view/plotsupp.mac
+< $macro_dir/view/unix_plot.mac
+< $macro_dir/numrec/fit_polynomial.mac
+< $macro_dir/numrec/svd.mac
+< $macro_dir/numrec/norm_coords.mac
+
+If $argc!=1 "error_exit 'usage:  coq <N> < fit_set.scr'"
+
+Set n_swipes $1
+
+New_Plotter v $DISPLAY_WIDTH $DISPLAY_HEIGHT
+Set xmin -2.4
+Set xmax -0.6   # log(0.25) = -0.6
+Set x_tick_spacing 0.6
+Set ymin 0
+#Set ymax -2.0
+Set ymax 3.0
+Set y_tick_spacing 1.00
+
+Plot_Data_Range $xmin $ymin $xmax $ymax
+Erase_Plot
+Select_Pen $black
+X_Legend 'log SF (cyc/samp)'
+Y_Legend 'log sensitivity'
+
+Plot_X_Axis $xmin $xmax $x_tick_spacing $ymin
+Plot_Y_Axis $ymin $ymax $y_tick_spacing $xmin
+Label_X_Ticks $xmin $xmax $x_tick_spacing
+Label_Y_Ticks $ymin $ymax $y_tick_spacing
+
+
+# Read all the data
+
+Set i 1
+Set total 0
+repeat $n_swipes
+  Set filename ascii/swipe$i.asc
+  Count_Lines nl $filename
+  Add_Var total $nl
+  Increment i
+  end
+
+# Now we know the total number of points
+Vector input_pts $total 2 float
+Set i 1
+Set offset 0
+repeat $n_swipes
+  Set filename ascii/swipe$i.asc
+  Count_Lines nl $filename
+  Subvector these_pts input_pts $nl $offset
+  Get_Ascii these_pts $filename
+  XYPlot these_pts
+  Delete_Image these_pts
+  Add_Var offset $nl
+  Increment i
+  end
+
+#Display input_pts
+Get_Min min_freq input_pts{0}
+Get_Max max_freq input_pts{0}
+
+Vector my_coeffs 3 1 float
+Vector adj_coeffs 3 1 float
+Fit_Polynomial my_coeffs input_pts
+# These are the coefficients for normalized coords
+Adjust_Quadratic_Coefficients adj_coeffs my_coeffs
+
+Vector_If fit_plot_pts 300 2 float
+Ramp1D fit_plot_pts{0} $min_freq
+	($max_freq-$min_freq)/(ncols(fit_plot_pts)-1)
+Compute_Parabola fit_plot_pts{1} fit_plot_pts{0}
+
+Put_Ascii fit_plot_pts ascii/fit$n_swipes.asc
+
+Select_Pen $red
+XYPlot fit_plot_pts
+
+# how to find the peak freq...
+# y = a x^2 + b x + c
+# y' = 2ax + b
+# x = -b/2a
+
+Assign peak_freq -$_b/(2*$_a)
+Print peak_freq
+output_file ascii/peak_freq$n_swipes.asc
+echo $peak_freq
+output_file -
+
+Assign peak_sens $_a*$peak_freq*$peak_freq+$_b*$peak_freq+$_c
+Print peak_sens
+output_file ascii/peak_sens$n_swipes.asc
+echo $peak_sens
+output_file -
+
+Pause
+

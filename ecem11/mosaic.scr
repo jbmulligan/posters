@@ -1,0 +1,39 @@
+#
+
+Set infile jbm_vverg.png
+Clobber yes
+
+Read_File_Header $infile
+
+Assign nc ncols('$infile')
+Assign nr nrows('$infile')
+Close_Hips_File $infile
+
+Set gap 30
+
+Assign newc 2*$nc+$gap
+Assign newr 2*$nr+$gap
+
+Image in $nr $nc 3 u_byte
+Image out $newr $newc 3 u_byte
+
+VSet out 255
+
+Define Put_It 3 filename x y
+Read_File_Header $1
+Get_Next in $1
+Subimage s out $nc $nr $2 $3
+VMov s in
+Delete_Image s
+.
+
+Put_It jbm_hvers.png 0 0
+Put_It jbm_vvers.png 0 $nr+$gap
+Put_It jbm_hverg.png $nc+$gap 0
+Put_It jbm_vverg.png $nc+$gap $nr+$gap
+
+Write_File_Header m.png 1
+Put_Next out m.png
+
+exit
+

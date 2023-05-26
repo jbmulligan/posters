@@ -1,0 +1,39 @@
+#!/bin/csh
+#
+# Create a postscript file with a plot of a temporal impulse response
+#
+
+if( $#argv != 2 ) then
+  echo usage:  ./plot_ir.shf datafile_name outfile_stem
+  exit
+endif
+
+set infile=$1
+set out_stem=$2
+
+set psdir=$HOME/working/postscript
+
+set figfile=$out_stem.eps
+set psfile=${out_stem}_obj.ps
+
+cat fig_ir_prolog.ps > $psfile
+
+
+set datafile=$infile
+echo "0.08 in setlinewidth" >> $psfile
+
+head -1 < $datafile | dm x1 '"gxu"' x2 '"gyu moveto"' >> $psfile
+cat $datafile | dm x1 '"gxu"' x2 '"gyu l"' >> $psfile
+
+
+cat $psdir/jbm_head.ps $psdir/jbm_page.ps $psdir/plotmacs.ps \
+	$psfile $psdir/jbm_trailer.ps > /tmp/psfile
+
+epstool --copy --bbox /tmp/psfile /tmp/psfile2
+epstool --add-tiff-preview --device tiff24nc /tmp/psfile2 $figfile
+
+/bin/rm $psfile /tmp/psfile /tmp/psfile2
+
+gs -sDEVICE=x11 $figfile
+
+exit

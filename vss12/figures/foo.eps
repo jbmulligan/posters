@@ -1,0 +1,549 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 37 118 562 641
+%%HiResBoundingBox: 37.446 118.860 561.336 640.356
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox:    26   80   542   616
+%%EndPageSetup
+
+%!
+% generally useful things for plotting data
+%
+% typical usage:
+%
+/in { 72 mul } def
+/m { moveto } def
+
+/framewidth 0.01 in def
+/gridwidth 0.005 in def
+/datawidth 0.02 in def
+/fatdatawidth 0.060 in def
+/thindatawidth 0.020 in def
+
+/tx -0.15 in def
+/ty -0.15 in def
+/tfact 1.5 def
+/smfsiz 0.25 in def
+/lgfsiz 0.35 in def
+/hugefsiz 0.45 in def
+
+% default values...
+
+/gx0 1.0 in def		% the lower left hand corner
+/gy0 1.0 in def
+/gdx 6.5 in def		% gdx is the extent of the plot
+/gdy 9 in def		% gdy is the extent of the plot
+
+
+% graph units to be mapped to graphing region
+% set these to suit the particular application
+/guxmin 0.0 def
+/guxmax 4.0 def
+/guymin -2.0 def
+/guymax 2.0 def
+/gudx guxmax guxmin sub def
+/gudy guymax guymin sub def
+
+%/the_font /Times-Roman def
+/the_font /Helvetica def
+the_font findfont smfsiz scalefont setfont
+
+% convert a relative motion from graph units to points
+/gdxu { gudx div gdx mul } def
+/gdyu { gudy div gdy mul } def
+
+% convert graph units to points
+% these macros take a point to a point - to convert vectors, use gdxu, gdyu
+%/gxu { guxmin sub gudx div gdx mul gx0 add } def
+%/gyu { guymin sub gudy div gdy mul gy0 add } def
+/gxu { guxmin sub gdxu gx0 add } def
+/gyu { guymin sub gdyu gy0 add } def
+
+/fntfct 3 def
+
+% /y 0 def
+/ylabel {
+	the_font findfont smfsiz scalefont setfont
+	gyu /y exch def
+	dup stringwidth pop neg
+	gx0 tx tfact mul add
+	add
+	y smfsiz fntfct div sub
+	moveto
+	show
+} def
+
+/xlabel {
+	gxu /x exch def
+	dup stringwidth pop 2 div neg
+	x add
+	gy0 ty tfact mul add
+	smfsiz sub
+	moveto
+	the_font findfont smfsiz scalefont setfont
+	show
+} def
+
+% string y  ylabeltick -
+
+/ylabeltick {
+% first two lines make the tick on the opposite side of frame
+%	dup gyu guxmax gxu exch moveto
+%	tx neg 0 rlineto
+%
+% the next 4 lines draw in thin gridlines
+	% gridwidth setlinewidth
+	% dup gyu gx0 exch moveto
+	% dup gyu guxmax gxu  exch lineto
+	% stroke
+
+	framewidth setlinewidth
+	dup gyu gx0 exch moveto
+	tx 0 rlineto
+	stroke
+	ylabel
+} def
+
+/ytick {
+% first two lines make the tick on the opposite side of frame
+%	dup gyu guxmax gxu exch moveto
+%	tx neg 0 rlineto
+%
+% the next 4 lines draw in thin gridlines
+	% gridwidth setlinewidth
+	% dup gyu gx0 exch moveto
+	% dup gyu guxmax gxu  exch lineto
+	% stroke
+
+	framewidth setlinewidth
+	dup gyu gx0 exch moveto
+	tx 0 rlineto
+	stroke
+} def
+
+/xlabeltick {
+% the next 4 lines draw in thin gridlines
+	% gridwidth setlinewidth
+	% dup gxu gy0 moveto
+	% dup gxu guymax gyu lineto
+	% stroke
+%
+	framewidth setlinewidth
+% the next 2 lines draw a tick on the far side of the frame
+%	dup gxu guymax gyu moveto
+%	0 ty neg rlineto
+%
+	dup gxu gy0 moveto
+	0 ty rlineto
+	stroke
+	xlabel
+} def
+
+/xtick {
+% the next 4 lines draw in thin gridlines
+	% gridwidth setlinewidth
+	% dup gxu gy0 moveto
+	% dup gxu guymax gyu lineto
+	% stroke
+%
+	framewidth setlinewidth
+% the next 2 lines draw a tick on the far side of the frame
+%	dup gxu guymax gyu moveto
+%	0 ty neg rlineto
+%
+	dup gxu gy0 moveto
+	0 ty rlineto
+	stroke
+} def
+
+/yaxis {
+	framewidth setlinewidth
+	gx0 gy0 m
+	gx0 guymax gyu lineto
+	stroke
+} def
+
+/xaxis {
+	framewidth setlinewidth
+	gx0 gy0 moveto
+	guxmax gxu gy0 lineto
+	stroke
+} def
+
+/frame {
+	framewidth setlinewidth
+%	gx0		gy0		m
+%	gx0		guymax gyu	lineto
+%	guxmax gxu	guymax gyu	lineto
+%	guxmax gxu	gy0		lineto
+%	gx0		gy0		lineto
+	guxmin gxu	guymin gyu	m
+	guxmin gxu	guymax gyu	lineto
+	guxmax gxu	guymax gyu	lineto
+	guxmax gxu	guymin gyu	lineto
+	guxmin gxu	guymin gyu	lineto
+	stroke
+} def
+
+/xlegend {
+	the_font findfont lgfsiz scalefont setfont
+	dup stringwidth pop 2 div neg
+	gx0 gdx 2 div add add
+	gy0 ty tfact mul add smfsiz 2 mul sub lgfsiz sub
+	moveto
+	show
+} def
+
+% tx is the tick len in inches
+% It's negative, so we add instead of subtract
+% tfact is 1.5 and controls the gap after the ticks
+
+/ylegend {
+	the_font findfont lgfsiz scalefont setfont
+	dup stringwidth pop 2 div neg
+	gy0 gdy 2 div add add
+% BUG proper placement of the y legend
+% depends on the length of the strings labelling
+% the ticks!?
+%	gx0 tx tfact mul add smfsiz 2 mul sub lgfsiz sub
+	gx0 tx tfact mul add smfsiz sub lgfsiz sub
+	gsave
+	exch moveto
+	90 rotate
+	show
+	grestore
+} def
+
+
+
+/smxlegend {
+	the_font findfont smfsiz scalefont setfont
+	dup stringwidth pop 2 div neg
+	gx0 gdx 2 div add add
+	gy0 ty tfact mul add smfsiz 2 mul sub smfsiz sub
+	moveto
+	show
+} def
+
+
+/smylegend {
+	the_font findfont smfsiz scalefont setfont
+	dup stringwidth pop 2 div neg
+	gy0 gdy 2 div add add
+	gx0 tx tfact mul add smfsiz 2 mul sub smfsiz sub
+	gsave
+	exch moveto
+	90 rotate
+	show
+	grestore
+} def
+
+/l {
+	lineto
+	currentpoint
+	stroke
+	moveto
+} def
+
+/plot_title {
+	the_font findfont hugefsiz scalefont setfont
+	dup stringwidth pop 2 div neg
+	gx0 gdx 2 div add add
+	gy0 gdy add hugefsiz add
+	moveto
+	show
+} def
+
+
+%symbols
+
+/dotsize 3 def
+
+% with this definition, the line width scales with the dot size!?
+/open_circle {
+  gsave translate dotsize dup scale newpath
+   0 0 1  0 360 arc closepath 
+  stroke grestore } def
+
+/filled_circle  {
+  gsave translate dotsize dup scale newpath
+   0 0 1  0 360 arc closepath 
+  fill grestore } def
+
+/open_square { 
+  gsave translate dotsize dup scale
+  newpath
+  1  1 moveto -1  1 lineto
+ -1 -1 lineto  1 -1 lineto
+  closepath stroke grestore } def
+
+/filled_square { 
+  gsave translate dotsize dup scale
+  newpath
+  1  1 moveto -1  1 lineto
+ -1 -1 lineto  1 -1 lineto
+  closepath fill grestore } def
+
+/open_inverted_triangle {
+  gsave translate dotsize dup scale
+  newpath
+  0 -1.414 moveto  1.414 1 lineto  -1.414 1 lineto
+  closepath stroke grestore } def
+
+/filled_inverted_triangle {
+  gsave translate dotsize dup scale
+  newpath
+  0 -1.414 moveto  1.414 1 lineto  -1.414 1 lineto
+  closepath fill grestore } def
+
+/open_triangle {
+  gsave translate dotsize dup scale
+  newpath
+  0 1.414 moveto  1.414 -1 lineto  -1.414 -1 lineto
+  closepath stroke grestore } def
+
+/filled_triangle {
+  gsave translate dotsize dup scale
+  newpath
+  0 1.414 moveto  1.414 -1 lineto  -1.414 -1 lineto
+  closepath fill grestore } def
+
+/open_diamond {
+  gsave translate dotsize dup scale
+  newpath
+  0 1.414 moveto  1.414 0 lineto  0 -1.414 lineto  -1.414 0 lineto
+  closepath stroke grestore } def
+
+/filled_diamond {
+  gsave translate dotsize dup scale
+  newpath
+  0 1.414 moveto  1.414 0 lineto  0 -1.414 lineto  -1.414 0 lineto
+  closepath fill grestore } def
+
+% angle size x y arrow
+/arrow {
+  gsave translate dup scale rotate
+  newpath
+%  1 setlinewidth
+  1 setlinejoin
+  -30 0 moveto
+  30 0 lineto
+  -10 10 rlineto
+  10 -10 rmoveto
+  -10 -10 rlineto
+  closepath stroke grestore } def
+
+%!
+% plot response amplitude vs. time
+% max time is 100 msec, 
+%
+
+%% -2 in -3 in translate
+
+%% for landscape mode, uncomment these two lines
+
+%% landscape mode
+%90 rotate
+%0 in -8.5 in translate
+
+0 0 0 setrgbcolor
+
+/ybase 2.8 in def
+/pspan 6.0 in def
+
+% graphing region on page in inches
+
+%/gx0 2.0 in def
+%/gdx 5 in def
+/gx0 1.6 in def
+/gdx 6.0 in def
+/gy0 ybase def
+/gdy pspan def
+
+% graph units to be mapped to graphing region
+% set these to suit the particular application
+% /guxmin -100.0 def
+% /guxmax 700.0 def
+/guxmin 0.0 def
+/guxmax 100.0 def
+/guymin -1.0 def
+/guymax 1.0 def
+/gudx guxmax guxmin sub def
+/gudy guymax guymin sub def
+
+% /Times-Roman findfont smfsiz scalefont setfont
+/Helvetica findfont smfsiz scalefont setfont
+% for the plot frame?
+newpath
+
+% draw vertical axis labels
+[ ] 0 setdash
+
+%
+/draw_frame {
+simple_frame
+} def
+
+/simple_frame {
+frame
+
+% add a horizontal line at y=0
+newpath
+guxmin gxu 0 gyu moveto
+guxmax gxu 0 gyu l
+stroke
+
+
+(1.0) 1.0	ylabeltick
+(0.5) 0.5	ylabeltick
+(0.0) 0.0	ylabeltick
+(-0.5) -0.5	ylabeltick
+(-1.0) -1.0	ylabeltick
+
+% xaxis
+% time
+% (-100) -100.0 xlabeltick
+
+(response (arb. units)) ylegend
+(time (msec)) xlegend
+
+% 0.1 0.1 0.1  12 0 18 100 box
+
+
+(0) 0	xlabeltick
+(20) 20	xlabeltick
+(40) 40	xlabeltick
+(60) 60	xlabeltick
+(80) 80	xlabeltick
+(100) 100	xlabeltick
+
+
+% 1.20411998266
+% 1.50514997832
+% 1.80617997398
+% 2.10720996965
+% 2.40823996531
+% 2.70926996098
+% 3.01029995664
+% 3.3113299523
+% 3.61235994797
+
+} def
+
+draw_frame
+
+datawidth setlinewidth
+
+% now put in more info
+/subj_label {
+% should set up the font here...
+	5.5 gxu 6.0 gyu moveto
+	show
+} def
+
+
+0.08 in setlinewidth
+0	gxu	0	gyu moveto
+0	gxu	0	gyu l
+1	gxu	0.344443	gyu l
+2	gxu	0.593671	gyu l
+3	gxu	0.768062	gyu l
+4	gxu	0.884005	gyu l
+5	gxu	0.954649	gyu l
+6	gxu	0.990516	gyu l
+7	gxu	1	gyu l
+8	gxu	0.989776	gyu l
+9	gxu	0.965128	gyu l
+10	gxu	0.93022	gyu l
+11	gxu	0.888313	gyu l
+12	gxu	0.841944	gyu l
+13	gxu	0.79307	gyu l
+14	gxu	0.743182	gyu l
+15	gxu	0.693405	gyu l
+16	gxu	0.644567	gyu l
+17	gxu	0.597269	gyu l
+18	gxu	0.551926	gyu l
+19	gxu	0.508815	gyu l
+20	gxu	0.4681	gyu l
+21	gxu	0.429863	gyu l
+22	gxu	0.394122	gyu l
+23	gxu	0.360845	gyu l
+24	gxu	0.329968	gyu l
+25	gxu	0.301402	gyu l
+26	gxu	0.275041	gyu l
+27	gxu	0.250767	gyu l
+28	gxu	0.228459	gyu l
+29	gxu	0.207992	gyu l
+30	gxu	0.189242	gyu l
+31	gxu	0.172087	gyu l
+32	gxu	0.15641	gyu l
+33	gxu	0.142098	gyu l
+34	gxu	0.129044	gyu l
+35	gxu	0.117147	gyu l
+36	gxu	0.106313	gyu l
+37	gxu	0.0964536	gyu l
+38	gxu	0.0874853	gyu l
+39	gxu	0.0793324	gyu l
+40	gxu	0.071924	gyu l
+41	gxu	0.0651951	gyu l
+42	gxu	0.0590856	gyu l
+43	gxu	0.0535403	gyu l
+44	gxu	0.0485087	gyu l
+45	gxu	0.0439444	gyu l
+46	gxu	0.039805	gyu l
+47	gxu	0.0360519	gyu l
+48	gxu	0.0326496	gyu l
+49	gxu	0.0295659	gyu l
+50	gxu	0.0267714	gyu l
+51	gxu	0.0242394	gyu l
+52	gxu	0.0219455	gyu l
+53	gxu	0.0198676	gyu l
+54	gxu	0.0179856	gyu l
+55	gxu	0.016281	gyu l
+56	gxu	0.0147374	gyu l
+57	gxu	0.0133397	gyu l
+58	gxu	0.0120741	gyu l
+59	gxu	0.0109283	gyu l
+60	gxu	0.00989089	gyu l
+61	gxu	0.00895176	gyu l
+62	gxu	0.00810162	gyu l
+63	gxu	0.00733207	gyu l
+64	gxu	0.00663549	gyu l
+65	gxu	0.00600499	gyu l
+66	gxu	0.00543432	gyu l
+67	gxu	0.00491781	gyu l
+68	gxu	0.00445034	gyu l
+69	gxu	0.00402726	gyu l
+70	gxu	0.00364437	gyu l
+71	gxu	0.00329785	gyu l
+72	gxu	0.00298425	gyu l
+73	gxu	0.00270045	gyu l
+74	gxu	0.00244363	gyu l
+75	gxu	0.00221122	gyu l
+76	gxu	0.0020009	gyu l
+77	gxu	0.00181057	gyu l
+78	gxu	0.00163834	gyu l
+79	gxu	0.00148249	gyu l
+80	gxu	0.00134146	gyu l
+81	gxu	0.00121384	gyu l
+82	gxu	0.00109836	gyu l
+83	gxu	0.000993866	gyu l
+84	gxu	0.000899308	gyu l
+85	gxu	0.000813745	gyu l
+86	gxu	0.000736321	gyu l
+87	gxu	0.000666263	gyu l
+88	gxu	0.000602869	gyu l
+89	gxu	0.000545506	gyu l
+90	gxu	0.000493601	gyu l
+91	gxu	0.000446634	gyu l
+92	gxu	0.000404135	gyu l
+93	gxu	0.00036568	gyu l
+94	gxu	0.000330884	gyu l
+95	gxu	0.000299399	gyu l
+96	gxu	0.000270909	gyu l
+97	gxu	0.00024513	gyu l
+98	gxu	0.000221804	gyu l
+99	gxu	0.000200698	gyu l
+
+showpage
+
